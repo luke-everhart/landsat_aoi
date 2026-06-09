@@ -24,7 +24,7 @@ def get_LST(BT, W, E):
     #return ( BT / (( 1 + ((W * BT) / 1.4380) ) * log(E) ))
 
 # Pull in all raster files
-data_path = "./data"
+data_path = argv[1]
 contents = listdir(data_path)
 
 band4 = []
@@ -45,11 +45,13 @@ for tar in contents:
     #rasters.append(rasterio.open(f"{data_path}/{tar}/{raster_file}"))
 
 # Pull in line data
-input_data_path = argv[1]
+input_data_path = argv[2]
 input_data = gpd.read_file(input_data_path)
 
-# Enforce EPSG:32617
-input_data = input_data.to_crs("EPSG:32617")
+# Get CRS
+src = rasterio.open(f"{data_path}/{tar}/{file}")
+
+input_data = input_data.to_crs(src.crs)
 
 def set_NVDI():
 
@@ -120,6 +122,8 @@ def set_LST(row):
     wavelength = 10.8
 
     LST = get_LST(BT, wavelength, E)
+
+    print(LST)
 
     row['LST'] = LST
 
